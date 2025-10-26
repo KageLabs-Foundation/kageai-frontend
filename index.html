@@ -1,462 +1,629 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KageAI - Your AI Assistant</title>
-  <style>
-    /* Reset & Base */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KageAI - Your AI Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /*
+         * CORE STYLES - Merged and adapted from the 'HomePage.module.css' concept
+         */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+        }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #000000;
-      color: #ffffff;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden; /* Prevent scrollbar flash on load */
+        }
 
-    /* Container */
-    .container {
-      max-width: 800px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      height: 90vh;
-      max-height: 700px;
-    }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-.logo {
-  font-size: 3rem;
-  font-weight: 900;
-  background: linear-gradient(135deg, #22d3ee, #a855f7);
-  
-  /* Add this line for standard compatibility */
-  background-clip: text; 
-  
-  -webkit-background-clip: text; /* For WebKit browsers like Chrome & Safari */
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
-}
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
 
-    .tagline {
-      color: #888;
-      font-size: 1rem;
-    }
+        /* --- Container and Layout --- */
+        .container {
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            max-height: 800px;
+            animation: fadeIn 1s ease-out;
+            position: relative;
+            z-index: 10;
+            padding-bottom: 20px; /* Space for input */
+        }
+        
+        /* Background Orb Effect (from HomePage.module.css concept) */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px); /* Increased blur */
+            opacity: 0.15;
+            z-index: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+        }
 
-    /* Chat Box */
-    .chat-box {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 20px;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+        .orb-cyan {
+            top: 10%;
+            left: 5%;
+            width: 200px;
+            height: 200px;
+            background: #22d3ee;
+        }
 
-    /* Scrollbar styling */
-    .chat-box::-webkit-scrollbar {
-      width: 8px;
-    }
+        .orb-purple {
+            bottom: 10%;
+            right: 5%;
+            width: 300px;
+            height: 300px;
+            background: #a855f7;
+        }
 
-    .chat-box::-webkit-scrollbar-track {
-      background: transparent;
-    }
+        /* --- Header --- */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
 
-    .chat-box::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-    }
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, #22d3ee, #3b82f6, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.25rem;
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+        }
 
-    /* Messages */
-    .message {
-      display: flex;
-      gap: 12px;
-      animation: slideIn 0.3s ease;
-    }
+        .tagline {
+            color: #6b7280;
+            font-size: 1rem;
+            font-weight: 500;
+        }
 
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        /* --- Chat Box --- */
+        .chat-box {
+            flex: 1;
+            background: rgba(17, 24, 39, 0.7); /* Darker, slightly transparent background */
+            border: 1px solid rgba(34, 211, 238, 0.2); /* Cyan-tinted border */
+            border-radius: 20px; /* Smoother corners */
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            backdrop-filter: blur(10px); /* Glassmorphism effect */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
 
-    .message-content {
-      max-width: 80%;
-      padding: 12px 16px;
-      border-radius: 12px;
-      line-height: 1.5;
-    }
+        /* Scrollbar styling */
+        .chat-box::-webkit-scrollbar { width: 8px; }
+        .chat-box::-webkit-scrollbar-track { background: transparent; }
+        .chat-box::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        .chat-box::-webkit-scrollbar-thumb:hover { background: #374151; }
 
-    .user-message {
-      flex-direction: row-reverse;
-    }
+        /* --- Messages --- */
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
 
-    .user-message .message-content {
-      background: linear-gradient(135deg, #22d3ee, #3b82f6);
-      margin-left: auto;
-    }
+        .message-content {
+            max-width: 90%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            line-height: 1.6;
+            font-size: 1rem;
+            word-wrap: break-word; /* Ensure long words wrap */
+            overflow-wrap: break-word; /* Ensure long words wrap */
+        }
 
-    .ai-message .message-content {
-      background: rgba(168, 85, 247, 0.1);
-      border: 1px solid rgba(168, 85, 247, 0.2);
-    }
+        .user-message {
+            flex-direction: row-reverse;
+        }
 
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      flex-shrink: 0;
-    }
+        .user-message .message-content {
+            background: linear-gradient(135deg, #22d3ee, #3b82f6); /* Brighter User Gradient */
+            margin-left: auto;
+            color: #000000;
+            font-weight: 500;
+            border-bottom-right-radius: 4px;
+        }
 
-    .user-avatar {
-      background: linear-gradient(135deg, #22d3ee, #3b82f6);
-    }
+        .ai-message .message-content {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3); /* Purple-tinted border */
+            color: #ffffff;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
 
-    .ai-avatar {
-      background: linear-gradient(135deg, #a855f7, #ec4899);
-    }
+        .user-avatar {
+            background: #ffffff; /* User avatar stands out */
+        }
 
-    /* Loading animation */
-    .typing-indicator {
-      display: flex;
-      gap: 4px;
-      padding: 8px;
-    }
+        .ai-avatar {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+        }
 
-    .typing-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #888;
-      animation: typing 1.4s infinite;
-    }
+        /* --- Markdown Styling for AI Response --- */
+        .ai-message .message-content h1,
+        .ai-message .message-content h2,
+        .ai-message .message-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #22d3ee;
+            font-weight: 700;
+        }
 
-    .typing-dot:nth-child(2) {
-      animation-delay: 0.2s;
-    }
+        .ai-message .message-content p {
+            margin-bottom: 0.75rem;
+        }
 
-    .typing-dot:nth-child(3) {
-      animation-delay: 0.4s;
-    }
+        .ai-message .message-content ul,
+        .ai-message .message-content ol {
+            padding-left: 20px;
+            margin-bottom: 1rem;
+        }
 
-    @keyframes typing {
-      0%, 60%, 100% {
-        opacity: 0.3;
-      }
-      30% {
-        opacity: 1;
-      }
-    }
+        .ai-message .message-content li {
+            margin-bottom: 0.5rem;
+        }
 
-    /* Input Area */
-    .input-area {
-      display: flex;
-      gap: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 12px;
-      transition: border-color 0.3s;
-    }
+        .ai-message .message-content code {
+            background: rgba(168, 85, 247, 0.2);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
 
-    .input-area:focus-within {
-      border-color: #22d3ee;
-    }
+        .ai-message .message-content pre {
+            background: #0f0f0f;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
 
-    #messageInput {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 16px;
-      outline: none;
-    }
+        .ai-message .message-content pre code {
+            all: unset; /* Remove inline code styling for block code */
+            white-space: pre;
+            display: block;
+            color: #e5e7eb;
+        }
+        
+        .ai-message .message-content strong {
+            color: #22d3ee;
+        }
 
-    #messageInput::placeholder {
-      color: #666;
-    }
+        /* --- Loading animation --- */
+        #typing-indicator .message-content {
+             /* Use the AI background for the typing indicator container */
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
 
-    #sendButton {
-      background: linear-gradient(135deg, #22d3ee, #3b82f6);
-      border: none;
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+        .typing-indicator {
+            display: flex;
+            gap: 6px;
+            padding: 4px 0;
+            align-items: center;
+        }
 
-    #sendButton:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(34, 211, 238, 0.3);
-    }
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #a855f7; /* Purple dot */
+            animation: typing 1.4s infinite;
+        }
 
-    #sendButton:active {
-      transform: translateY(0);
-    }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-    #sendButton:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
+        /* --- Input Area --- */
+        .input-area {
+            display: flex;
+            gap: 12px;
+            background: rgba(17, 24, 39, 0.8);
+            border: 2px solid rgba(34, 211, 238, 0.2);
+            border-radius: 16px;
+            padding: 10px;
+            transition: border-color 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
 
-    /* Empty state */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: #666;
-      text-align: center;
-      gap: 1rem;
-    }
+        .input-area:focus-within {
+            border-color: #22d3ee;
+            box-shadow: 0 4px 20px rgba(34, 211, 238, 0.3);
+        }
 
-    .empty-state-icon {
-      font-size: 4rem;
-    }
+        #messageInput {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            padding: 8px;
+        }
 
-    /* Suggestions */
-    .suggestions {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-top: 1rem;
-    }
+        #messageInput::placeholder {
+            color: #6b7280;
+        }
 
-    .suggestion-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
+        #sendButton {
+            background: linear-gradient(135deg, #22d3ee, #3b82f6);
+            border: none;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(34, 211, 238, 0.3);
+        }
 
-    .suggestion-card:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: #22d3ee;
-      transform: translateY(-2px);
-    }
+        #sendButton:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(34, 211, 238, 0.5);
+        }
 
-    .suggestion-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #22d3ee;
-    }
+        #sendButton:active {
+            transform: translateY(0);
+        }
 
-    .suggestion-desc {
-      font-size: 0.9rem;
-      color: #888;
-    }
-  </style>
+        #sendButton:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* --- Empty State --- */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6b7280;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .empty-state h2 {
+            color: #ffffff;
+            font-size: 2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+        }
+
+        /* --- Suggestions --- */
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 1.5rem;
+            max-width: 600px;
+        }
+
+        .suggestion-card {
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .suggestion-card:hover {
+            background: rgba(34, 211, 238, 0.1);
+            border-color: #22d3ee;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(34, 211, 238, 0.2);
+        }
+
+        .suggestion-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #22d3ee;
+            font-size: 1.1rem;
+        }
+
+        .suggestion-desc {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Header -->
-    <div class="header">
-      <div class="logo">🚀 KageAI</div>
-      <div class="tagline">Your AI-Powered Productivity Assistant</div>
+    <div class="orb orb-cyan"></div>
+    <div class="orb orb-purple"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚀 KageAI</div>
+            <div class="tagline">Your AI-Powered Productivity Assistant</div>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-state-icon">💬</div>
+                <div>
+                    <h2>Welcome to KageAI!</h2>
+                    <p>Ask me anything to get started</p>
+                </div>
+                
+                <div class="suggestions" id="suggestions">
+                    <div class="suggestion-card" data-prompt="What can you help me with?">
+                        <div class="suggestion-title">✨ Getting Started</div>
+                        <div class="suggestion-desc">Learn what I can do</div>
+                    </div>
+                    <div class="suggestion-card" data-prompt="Help me prioritize my tasks for today">
+                        <div class="suggestion-title">📋 Task Help</div>
+                        <div class="suggestion-desc">Organize your work</div>
+                    </div>
+                    <div class="suggestion-card" data-prompt="Give me a productivity tip">
+                        <div class="suggestion-title">💡 Productivity</div>
+                        <div class="suggestion-desc">Boost your efficiency</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input 
+                type="text" 
+                id="messageInput" 
+                placeholder="Type your message..."
+                autocomplete="off"
+            >
+            <button id="sendButton">Send</button>
+        </div>
     </div>
 
-    <!-- Chat Box -->
-    <div class="chat-box" id="chatBox">
-      <!-- Empty state -->
-      <div class="empty-state" id="emptyState">
-        <div class="empty-state-icon">💬</div>
-        <div>
-          <h2>Welcome to KageAI!</h2>
-          <p>Ask me anything to get started</p>
-        </div>
-        
-        <!-- Suggestion cards -->
-        <div class="suggestions">
-          <div class="suggestion-card" onclick="sendSuggestion('What can you help me with?')">
-            <div class="suggestion-title">✨ Getting Started</div>
-            <div class="suggestion-desc">Learn what I can do</div>
-          </div>
-          <div class="suggestion-card" onclick="sendSuggestion('Help me prioritize my tasks for today')">
-            <div class="suggestion-title">📋 Task Help</div>
-            <div class="suggestion-desc">Organize your work</div>
-          </div>
-          <div class="suggestion-card" onclick="sendSuggestion('Give me a productivity tip')">
-            <div class="suggestion-title">💡 Productivity</div>
-            <div class="suggestion-desc">Boost your efficiency</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <script>
+        // Configuration
+        const API_URL = 'https://kageai-backend.kagelabs.deno.net'; // IMPORTANT: Update this to your deployed backend URL
 
-    <!-- Input Area -->
-    <div class="input-area">
-      <input 
-        type="text" 
-        id="messageInput" 
-        placeholder="Type your message..."
-        autocomplete="off"
-      >
-      <button id="sendButton">Send</button>
-    </div>
-  </div>
+        // DOM Elements
+        const chatBox = document.getElementById('chatBox');
+        const emptyState = document.getElementById('emptyState');
+        const suggestionsDiv = document.getElementById('suggestions');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
 
-  <script>
-    // Configuration
-    const API_URL = 'https://kageai-backend.kagelabs.deno.net'; // We'll change this when deploying
+        // State
+        let isWaitingForResponse = false;
 
-    // DOM Elements
-    const chatBox = document.getElementById('chatBox');
-    const emptyState = document.getElementById('emptyState');
-    const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendButton');
+        // --- MARKDOWN TO HTML RENDERER ---
+        // A minimal markdown function (no external library needed!)
+        function renderMarkdown(md) {
+            // Replace bold text: **text** -> <strong>text</strong>
+            let html = md.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Replace inline code: `code` -> <code>code</code>
+            html = html.replace(/`(.*?)`/g, '<code>$1</code>');
 
-    // State
-    let isWaitingForResponse = false;
+            // Replace block code: ```lang\ncode\n``` -> <pre><code>code</code></pre>
+            html = html.replace(/```(.*?)?\n([\s\S]*?)\n```/g, function(match, lang, code) {
+                // Remove leading/trailing spaces from code block content
+                const cleanedCode = code.trim();
+                // Basic HTML escaping for code content
+                const escapedCode = cleanedCode.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return `<pre><code>${escapedCode}</code></pre>`;
+            });
 
-    // Add message to chat
-    function addMessage(content, isUser = false) {
-      // Hide empty state after first message
-      if (emptyState) {
-        emptyState.style.display = 'none';
-      }
+            // Handle lists (simple bullet points)
+            html = html.replace(/^\s*\*(.*)$/gm, '<li>$1</li>');
+            html = html.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
+            html = html.replace(/<\/ul>\s*<ul>/g, ''); // Merge consecutive lists
 
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
-      
-      messageDiv.innerHTML = `
-        <div class="avatar ${isUser ? 'user-avatar' : 'ai-avatar'}">
-          ${isUser ? '👤' : '🤖'}
-        </div>
-        <div class="message-content">${content}</div>
-      `;
-      
-      chatBox.appendChild(messageDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+            // Replace headers: ## Header -> <h2>Header</h2> (basic, can be extended for #, ###)
+            html = html.replace(/^##\s*(.*)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^#\s*(.*)$/gm, '<h1>$1</h1>');
+            
+            // Replace double newlines with paragraph tags
+            html = html.split('\n\n').map(p => {
+                if (p.trim().startsWith('<h') || p.trim().startsWith('<ul') || p.trim().startsWith('<pre')) {
+                    return p; // Don't wrap headers, lists, or pre blocks in <p>
+                }
+                // Handle newlines within blocks
+                return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+            }).join('');
+            
+            // Remove empty paragraph tags
+            html = html.replace(/<p><\/p>/g, '');
 
-    // Show typing indicator
-    function showTyping() {
-      const typingDiv = document.createElement('div');
-      typingDiv.className = 'message ai-message';
-      typingDiv.id = 'typing-indicator';
-      typingDiv.innerHTML = `
-        <div class="avatar ai-avatar">🤖</div>
-        <div class="message-content">
-          <div class="typing-indicator">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-          </div>
-        </div>
-      `;
-      chatBox.appendChild(typingDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
+            return html;
+        }
 
-    // Remove typing indicator
-    function hideTyping() {
-      const typing = document.getElementById('typing-indicator');
-      if (typing) typing.remove();
-    }
+        // Add message to chat
+        function addMessage(content, isUser = false) {
+            // Hide empty state after first message
+            if (emptyState) {
+                emptyState.style.display = 'none';
+                suggestionsDiv.style.display = 'none'; // Also hide suggestions
+            }
 
-    // Send message to API
-    async function sendMessage(message) {
-      if (!message.trim() || isWaitingForResponse) return;
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            
+            // Render markdown for AI responses
+            const formattedContent = isUser ? content : renderMarkdown(content);
+            
+            messageDiv.innerHTML = `
+                <div class="avatar ${isUser ? 'user-avatar' : 'ai-avatar'}">
+                    ${isUser ? '👤' : '🤖'}
+                </div>
+                <div class="message-content">${formattedContent}</div>
+            `;
+            
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
-      // Add user message
-      addMessage(message, true);
-      messageInput.value = '';
-      
-      // Disable input while waiting
-      isWaitingForResponse = true;
-      sendButton.disabled = true;
-      messageInput.disabled = true;
-      
-      // Show typing indicator
-      showTyping();
+        // Show typing indicator
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai-message';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="avatar ai-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message }),
+        // Remove typing indicator
+        function hideTyping() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+
+        // Send message to API
+        async function sendMessage(message) {
+            if (!message.trim() || isWaitingForResponse) return;
+
+            // Add user message
+            addMessage(message, true);
+            messageInput.value = '';
+            
+            // Disable input while waiting
+            isWaitingForResponse = true;
+            sendButton.disabled = true;
+            messageInput.disabled = true;
+            
+            // Show typing indicator
+            showTyping();
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message }),
+                });
+
+                const data = await response.json();
+                
+                // Remove typing indicator
+                hideTyping();
+
+                if (data.success) {
+                    addMessage(data.response, false);
+                } else {
+                    const errorMessage = `❌ Sorry, something went wrong.
+## Error Details
+* **Status:** ${response.status}
+* **Message:** ${data.error || 'The API returned a failure message.'}
+Please check the backend logs.`;
+                    addMessage(errorMessage, false);
+                    console.error('API Error:', data.error);
+                }
+            } catch (error) {
+                hideTyping();
+                const networkError = `❌ Could not connect to the KageAI server at **${API_URL}**.
+## Troubleshooting
+* **Check URL:** Ensure \`API_URL\` is correct.
+* **Server Status:** Make sure your Deno backend is running and deployed.
+* **CORS:** Verify your backend has CORS correctly configured.`;
+                addMessage(networkError, false);
+                console.error('Network Error:', error);
+            } finally {
+                // Re-enable input
+                isWaitingForResponse = false;
+                sendButton.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        // Send suggestion (now uses the data-prompt attribute)
+        function sendSuggestion(e) {
+            const text = e.currentTarget.getAttribute('data-prompt');
+            messageInput.value = text;
+            sendMessage(text);
+        }
+
+        // Event Listeners
+        sendButton.addEventListener('click', () => {
+            sendMessage(messageInput.value);
         });
 
-        const data = await response.json();
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage(messageInput.value);
+            }
+        });
         
-        // Remove typing indicator
-        hideTyping();
+        // Event listener for all suggestion cards
+        document.querySelectorAll('.suggestion-card').forEach(card => {
+            card.addEventListener('click', sendSuggestion);
+        });
 
-        if (data.success) {
-          addMessage(data.response, false);
-        } else {
-          addMessage('❌ Sorry, something went wrong. Please try again.', false);
-          console.error('API Error:', data.error);
-        }
-      } catch (error) {
-        hideTyping();
-        addMessage('❌ Could not connect to server. Make sure it\'s running!', false);
-        console.error('Network Error:', error);
-      } finally {
-        // Re-enable input
-        isWaitingForResponse = false;
-        sendButton.disabled = false;
-        messageInput.disabled = false;
+        // Focus input on load
         messageInput.focus();
-      }
-    }
 
-    // Send suggestion
-    function sendSuggestion(text) {
-      messageInput.value = text;
-      sendMessage(text);
-    }
-
-    // Event Listeners
-    sendButton.addEventListener('click', () => {
-      sendMessage(messageInput.value);
-    });
-
-    messageInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        sendMessage(messageInput.value);
-      }
-    });
-
-    // Focus input on load
-    messageInput.focus();
-
-    console.log('🚀 KageAI Frontend loaded!');
-  </script>
+        console.log('✅ KageAI Frontend loaded with Markdown support!');
+    </script>
 </body>
 </html>
