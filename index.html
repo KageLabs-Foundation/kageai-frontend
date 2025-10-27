@@ -1,595 +1,727 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KageAI - Your AI Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <style>
-        /*
-         * CORE STYLES - Updated for Full-Screen Layout with Sidebar
-         */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            transition: color 0.3s, background-color 0.3s, border-color 0.3s;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KageAI - Your AI Assistant</title>
+  <style>
+    /* Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #000000;
-            color: #ffffff;
-            /* Full viewport height and width for the new layout */
-            min-height: 100vh;
-            display: flex;
-            padding: 0;
-            overflow: hidden; /* Manage overflow with specific elements */
-        }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+    /* Container */
+    .container {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      height: 90vh;
+      max-height: 800px;
+    }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
 
-        @keyframes typing {
-            0%, 60%, 100% { opacity: 0.3; }
-            30% { opacity: 1; }
-        }
+    .logo {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #22d3ee, #a855f7);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
 
-        /* --- Full Layout Structure --- */
-        .app-container {
-            display: flex;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            animation: fadeIn 1s ease-out;
-        }
+    .tagline {
+      color: #888;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
 
-        /* --- Sidebar (New Element) --- */
-        .sidebar {
-            width: 250px; /* Standard sidebar width */
-            flex-shrink: 0;
-            background: #0f0f0f;
-            border-right: 1px solid #1f2937;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 12px;
+    }
 
-        .sidebar-header {
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #1f2937;
-        }
-        
-        .sidebar-logo {
-            font-size: 1.5rem;
-            font-weight: 900;
-            letter-spacing: 0.05em;
-            background: linear-gradient(135deg, #22d3ee, #3b82f6, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    .header-btn {
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #888;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.3s;
+    }
 
-        .new-chat-btn {
-            width: 100%;
-            padding: 10px;
-            background: rgba(34, 211, 238, 0.1);
-            border: 1px solid rgba(34, 211, 238, 0.5);
-            color: #22d3ee;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.3s ease;
-        }
+    .header-btn:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
 
-        .new-chat-btn:hover {
-            background: rgba(34, 211, 238, 0.2);
-            border-color: #22d3ee;
-        }
+    .clear-btn:hover {
+      border-color: #ff4444;
+      color: #ff4444;
+    }
 
-        .history-title {
-            color: #6b7280;
-            font-size: 0.8rem;
-            margin-top: 1rem;
-        }
+    /* Quick Actions Bar */
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
 
-        .chat-history {
-            flex-grow: 1;
-            overflow-y: auto;
-            color: #9ca3af;
-        }
+    .quick-action {
+      padding: 8px 16px;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.2);
+      border-radius: 20px;
+      color: #22d3ee;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
 
-        /* Simple placeholder history item style */
-        .history-item {
-            padding: 8px 0;
-            cursor: pointer;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .history-item:hover {
-            color: #ffffff;
-        }
+    .quick-action:hover {
+      background: rgba(34, 211, 238, 0.2);
+      border-color: #22d3ee;
+      transform: translateY(-2px);
+    }
 
-        /* --- Main Chat Area --- */
-        .main-chat-area {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            padding-bottom: 20px; /* Space for the fixed input */
-            overflow-y: auto; /* Chat messages will scroll */
-        }
-        
-        /* Background Orb Effect (Repositioned for Main Area) */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.15;
-            z-index: 0;
-            transition: all 1s ease;
-            pointer-events: none;
-        }
+    /* Chat Box */
+    .chat-box {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 20px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
 
-        .orb-cyan {
-            top: 5%;
-            left: 20%; /* Adjusted for sidebar */
-            width: 300px;
-            height: 300px;
-            background: #22d3ee;
-        }
+    /* Scrollbar styling */
+    .chat-box::-webkit-scrollbar {
+      width: 8px;
+    }
 
-        .orb-purple {
-            bottom: 5%;
-            right: 5%;
-            width: 400px;
-            height: 400px;
-            background: #a855f7;
-        }
+    .chat-box::-webkit-scrollbar-track {
+      background: transparent;
+    }
 
-        /* --- Header (In main content area for context) --- */
-        .header {
-            text-align: center;
-            padding: 2rem 0;
-            position: sticky;
-            top: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 100;
-            border-bottom: 1px solid #1f2937;
-        }
+    .chat-box::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
 
-        .logo-small {
-            font-size: 2rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #22d3ee, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.25rem;
-        }
+    .chat-box::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
 
-        .tagline {
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
+    /* Messages */
+    .message {
+      display: flex;
+      gap: 12px;
+      animation: slideIn 0.3s ease;
+    }
 
-        /* --- Chat Box Content --- */
-        .chat-content-wrapper {
-            max-width: 900px; /* Wide screen, but chat messages centered */
-            width: 100%;
-            margin: 0 auto;
-            padding: 20px 20px 100px 20px; /* Padding bottom for fixed input area */
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            position: relative;
-            z-index: 5;
-        }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-        /* Remove old chat-box styling, as the wrapper now manages content */
-        .chat-content-wrapper.initial {
-            justify-content: center;
-            align-items: center;
-        }
+    .message-content {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      line-height: 1.6;
+      word-wrap: break-word;
+    }
 
+    .user-message {
+      flex-direction: row-reverse;
+    }
 
-        /* --- Messages --- */
-        .message {
-            display: flex;
-            gap: 12px;
-            animation: slideIn 0.3s ease;
-        }
+    .user-message .message-content {
+      background: linear-gradient(135deg, #22d3ee, #3b82f6);
+      margin-left: auto;
+    }
 
-        .message-content {
-            max-width: 800px; /* Give AI more room on wide screen */
-            padding: 14px 18px;
-            border-radius: 18px;
-            line-height: 1.6;
-            font-size: 1rem;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
+    .ai-message .message-content {
+      background: rgba(168, 85, 247, 0.1);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+    }
 
-        .user-message {
-            flex-direction: row-reverse;
-            justify-content: flex-end; /* Align user message right */
-        }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
 
-        .user-message .message-content {
-            background: linear-gradient(135deg, #22d3ee, #3b82f6);
-            color: #000000;
-            font-weight: 500;
-            border-bottom-right-radius: 4px;
-        }
+    .user-avatar {
+      background: linear-gradient(135deg, #22d3ee, #3b82f6);
+    }
 
-        .ai-message .message-content {
-            background: rgba(168, 85, 247, 0.1);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            color: #ffffff;
-            border-bottom-left-radius: 4px;
-        }
-        
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
+    .ai-avatar {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+    }
 
-        .user-avatar { background: #ffffff; }
-        .ai-avatar { background: linear-gradient(135deg, #a855f7, #ec4899); }
+    /* Loading animation */
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 8px;
+    }
 
-        /* --- Markdown Styling --- */
-        .ai-message .message-content h1, .ai-message .message-content h2 {
-            margin-top: 1rem; margin-bottom: 0.5rem; color: #22d3ee; font-weight: 700;
-        }
-        .ai-message .message-content p { margin-bottom: 0.75rem; }
-        .ai-message .message-content ul, .ai-message .message-content ol {
-            padding-left: 20px; margin-bottom: 1rem;
-        }
-        .ai-message .message-content code {
-            background: rgba(168, 85, 247, 0.2); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 0.9em;
-        }
-        .ai-message .message-content pre {
-            background: #0f0f0f; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; border: 1px solid rgba(168, 85, 247, 0.2);
-        }
-        .ai-message .message-content pre code {
-            all: unset; white-space: pre; display: block; color: #e5e7eb;
-        }
-        .ai-message .message-content strong { color: #22d3ee; }
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #888;
+      animation: typing 1.4s infinite;
+    }
 
-        /* --- Loading animation --- */
-        #typing-indicator .message-content {
-            background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3);
-        }
-        .typing-indicator { display: flex; gap: 6px; padding: 4px 0; align-items: center; }
-        .typing-dot {
-            width: 10px; height: 10px; border-radius: 50%; background: #a855f7; animation: typing 1.4s infinite;
-        }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
 
-        /* --- Empty State --- */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-top: 50px; /* Push down slightly from header */
-            color: #6b7280;
-            text-align: center;
-            gap: 1.5rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
 
-        /* --- Input Area (Fixed at bottom) --- */
-        .input-area-container {
-            position: fixed;
-            bottom: 0;
-            left: 250px; /* Offset by sidebar width */
-            right: 0;
-            padding: 20px 20px 30px 20px;
-            background: linear-gradient(to top, #000000, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
-            z-index: 200;
-        }
+    @keyframes typing {
+      0%, 60%, 100% {
+        opacity: 0.3;
+      }
+      30% {
+        opacity: 1;
+      }
+    }
 
-        .input-area {
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            gap: 12px;
-            background: rgba(17, 24, 39, 0.8);
-            border: 2px solid rgba(34, 211, 238, 0.2);
-            border-radius: 16px;
-            padding: 10px;
-            transition: border-color 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
+    /* Input Area */
+    .input-area {
+      display: flex;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px;
+      transition: border-color 0.3s;
+    }
 
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none; /* Hide sidebar on small screens */
-            }
-            .input-area-container {
-                left: 0; /* Full width for input area */
-            }
-            .chat-content-wrapper {
-                 padding: 20px 10px 100px 10px;
-            }
-        }
-    </style>
+    .input-area:focus-within {
+      border-color: #22d3ee;
+    }
+
+    #messageInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+
+    #messageInput::placeholder {
+      color: #666;
+    }
+
+    #sendButton {
+      background: linear-gradient(135deg, #22d3ee, #3b82f6);
+      border: none;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #sendButton:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(34, 211, 238, 0.3);
+    }
+
+    #sendButton:active {
+      transform: translateY(0);
+    }
+
+    #sendButton:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #666;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+    }
+
+    /* Suggestions */
+    .suggestions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 1rem;
+    }
+
+    .suggestion-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .suggestion-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #22d3ee;
+      transform: translateY(-2px);
+    }
+
+    .suggestion-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #22d3ee;
+    }
+
+    .suggestion-desc {
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    /* Status indicator */
+    .status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.8);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #888;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      .logo {
+        font-size: 2.5rem;
+      }
+
+      .quick-actions {
+        gap: 6px;
+      }
+
+      .quick-action {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+      }
+
+      .message-content {
+        max-width: 85%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="orb orb-cyan"></div>
-    <div class="orb orb-purple"></div>
-
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">🚀 KageAI</div>
-            </div>
-
-            <button class="new-chat-btn" onclick="location.reload()">+ New Chat</button>
-
-            <div class="history-title">RECENT CHATS</div>
-            <div class="chat-history">
-                <div class="history-item">How to use AI for market research</div>
-                <div class="history-item">Deno deployment fixes</div>
-                <div class="history-item">Best productivity tips for solo founders</div>
-                <div class="history-item">Drafting an email to investors</div>
-                </div>
-        </div>
-
-        <div class="main-chat-area" id="mainChatArea">
-            
-            <div class="header">
-                <div class="logo-small">KageAI</div>
-                <div class="tagline">Your AI-Powered Productivity Assistant</div>
-            </div>
-
-            <div class="chat-content-wrapper initial" id="chatContentWrapper">
-                
-                <div class="empty-state" id="emptyState">
-                    <div class="empty-state-icon">💬</div>
-                    <div>
-                        <h2>Welcome to KageAI!</h2>
-                        <p>Ask me anything to get started</p>
-                    </div>
-                    
-                    <div class="suggestions" id="suggestions">
-                        <div class="suggestion-card" data-prompt="What can you help me with?">
-                            <div class="suggestion-title">✨ Getting Started</div>
-                            <div class="suggestion-desc">Learn what I can do</div>
-                        </div>
-                        <div class="suggestion-card" data-prompt="Help me prioritize my tasks for today">
-                            <div class="suggestion-title">📋 Task Help</div>
-                            <div class="suggestion-desc">Organize your work</div>
-                        </div>
-                        <div class="suggestion-card" data-prompt="Give me a productivity tip">
-                            <div class="suggestion-title">💡 Productivity</div>
-                            <div class="suggestion-desc">Boost your efficiency</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="input-area-container">
-                <div class="input-area">
-                    <input 
-                        type="text" 
-                        id="messageInput" 
-                        placeholder="Type your message..."
-                        autocomplete="off"
-                    >
-                    <button id="sendButton">Send</button>
-                </div>
-            </div>
-
-        </div>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">🚀 KageAI</div>
+      <div class="tagline">Your AI-Powered Productivity Assistant</div>
+      <div class="header-actions">
+        <button onclick="exportChat()" class="header-btn">
+          💾 Export
+        </button>
+        <button onclick="clearChat()" class="header-btn clear-btn">
+          🗑️ Clear Chat
+        </button>
+      </div>
     </div>
 
-    <script>
-        // Configuration
-        const API_URL = 'https://kageai-backend.kagelabs.deno.net'; // IMPORTANT: Update this to your deployed backend URL
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <button onclick="sendSuggestion('What are my top 3 priorities today?')" class="quick-action">
+        🎯 Priorities
+      </button>
+      <button onclick="sendSuggestion('Help me break down this project into tasks')" class="quick-action">
+        📋 Plan Project
+      </button>
+      <button onclick="sendSuggestion('Give me a 5-minute productivity boost')" class="quick-action">
+        ⚡ Quick Win
+      </button>
+      <button onclick="sendSuggestion('Summarize my conversation so far')" class="quick-action">
+        📊 Summary
+      </button>
+    </div>
 
-        // DOM Elements
-        const chatContentWrapper = document.getElementById('chatContentWrapper');
-        const emptyState = document.getElementById('emptyState');
-        const suggestionsDiv = document.getElementById('suggestions');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const mainChatArea = document.getElementById('mainChatArea');
-
-        // State
-        let isWaitingForResponse = false;
-
-        // --- MARKDOWN TO HTML RENDERER ---
-        function renderMarkdown(md) {
-            let html = md.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            html = html.replace(/`(.*?)`/g, '<code>$1</code>');
-
-            html = html.replace(/```(.*?)?\n([\s\S]*?)\n```/g, function(match, lang, code) {
-                const cleanedCode = code.trim();
-                const escapedCode = cleanedCode.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                return `<pre><code>${escapedCode}</code></pre>`;
-            });
-
-            // Headers
-            html = html.replace(/^##\s*(.*)$/gm, '<h2>$1</h2>');
-            html = html.replace(/^#\s*(.*)$/gm, '<h1>$1</h1>');
-            
-            // Lists
-            html = html.replace(/^\s*[\-\*]\s*(.*)$/gm, '<li>$1</li>');
-            html = html.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
-            html = html.replace(/<\/ul>\s*<ul>/g, '');
-
-            // Paragraphs and line breaks
-            html = html.split('\n\n').map(p => {
-                if (p.trim().startsWith('<h') || p.trim().startsWith('<ul') || p.trim().startsWith('<pre')) {
-                    return p;
-                }
-                return `<p>${p.replace(/\n/g, '<br>')}</p>`;
-            }).join('');
-            
-            html = html.replace(/<p><\/p>/g, '');
-
-            return html;
-        }
-
-        // Add message to chat
-        function addMessage(content, isUser = false) {
-            // Check if it's the first message
-            if (emptyState && emptyState.parentNode) {
-                // Hide empty state and remove initial styling
-                emptyState.style.display = 'none';
-                suggestionsDiv.style.display = 'none';
-                chatContentWrapper.classList.remove('initial');
-            }
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
-            
-            const formattedContent = isUser ? content : renderMarkdown(content);
-            
-            messageDiv.innerHTML = `
-                <div class="avatar ${isUser ? 'user-avatar' : 'ai-avatar'}">
-                    ${isUser ? '👤' : '🤖'}
-                </div>
-                <div class="message-content">${formattedContent}</div>
-            `;
-            
-            chatContentWrapper.appendChild(messageDiv);
-            
-            // Auto-scroll the main chat area
-            mainChatArea.scrollTop = mainChatArea.scrollHeight;
-        }
-
-        // Show typing indicator
-        function showTyping() {
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message ai-message';
-            typingDiv.id = 'typing-indicator';
-            typingDiv.innerHTML = `
-                <div class="avatar ai-avatar">🤖</div>
-                <div class="message-content">
-                    <div class="typing-indicator">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                </div>
-            `;
-            chatContentWrapper.appendChild(typingDiv);
-            mainChatArea.scrollTop = mainChatArea.scrollHeight;
-        }
-
-        // Remove typing indicator
-        function hideTyping() {
-            const typing = document.getElementById('typing-indicator');
-            if (typing) typing.remove();
-        }
-
-        // Send message to API
-        async function sendMessage(message) {
-            if (!message.trim() || isWaitingForResponse) return;
-
-            addMessage(message, true);
-            messageInput.value = '';
-            
-            isWaitingForResponse = true;
-            sendButton.disabled = true;
-            messageInput.disabled = true;
-            
-            showTyping();
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message }),
-                });
-
-                const data = await response.json();
-                
-                hideTyping();
-
-                if (data.success) {
-                    addMessage(data.response, false);
-                } else {
-                    const errorMessage = `❌ Sorry, something went wrong.
-## Error Details
-* **Status:** ${response.status}
-* **Message:** ${data.error || 'The API returned a failure message.'}
-Please check the backend logs.`;
-                    addMessage(errorMessage, false);
-                    console.error('API Error:', data.error);
-                }
-            } catch (error) {
-                hideTyping();
-                const networkError = `❌ Could not connect to the KageAI server at **${API_URL}**.
-## Troubleshooting
-* **Check URL:** Ensure \`API_URL\` is correct.
-* **Server Status:** Make sure your Deno backend is running and deployed.
-* **CORS:** Verify your backend has CORS correctly configured.`;
-                addMessage(networkError, false);
-                console.error('Network Error:', error);
-            } finally {
-                isWaitingForResponse = false;
-                sendButton.disabled = false;
-                messageInput.disabled = false;
-                messageInput.focus();
-            }
-        }
-
-        // Send suggestion (now uses the data-prompt attribute)
-        function sendSuggestion(e) {
-            const text = e.currentTarget.getAttribute('data-prompt');
-            messageInput.value = text;
-            sendMessage(text);
-        }
-
-        // Event Listeners
-        sendButton.addEventListener('click', () => {
-            sendMessage(messageInput.value);
-        });
-
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage(messageInput.value);
-            }
-        });
+    <!-- Chat Box -->
+    <div class="chat-box" id="chatBox">
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-state-icon">💬</div>
+        <div>
+          <h2>Welcome to KageAI!</h2>
+          <p>Your AI productivity partner for getting things done</p>
+        </div>
         
-        document.querySelectorAll('.suggestion-card').forEach(card => {
-            card.addEventListener('click', sendSuggestion);
+        <!-- Suggestion cards -->
+        <div class="suggestions">
+          <div class="suggestion-card" onclick="sendSuggestion('What can you help me with?')">
+            <div class="suggestion-title">✨ Getting Started</div>
+            <div class="suggestion-desc">Learn what I can do</div>
+          </div>
+          <div class="suggestion-card" onclick="sendSuggestion('Help me prioritize my tasks for today')">
+            <div class="suggestion-title">📋 Task Help</div>
+            <div class="suggestion-desc">Organize your work</div>
+          </div>
+          <div class="suggestion-card" onclick="sendSuggestion('I need help staying focused')">
+            <div class="suggestion-title">💡 Productivity</div>
+            <div class="suggestion-desc">Boost your efficiency</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area">
+      <input 
+        type="text" 
+        id="messageInput" 
+        placeholder="Type your message... (Press Enter to send)"
+        autocomplete="off"
+      >
+      <button id="sendButton">Send</button>
+    </div>
+  </div>
+
+  <!-- Status indicator -->
+  <div id="status" class="status"></div>
+
+  <script>
+    // Configuration
+    const API_URL = 'http://localhost:8000'; // Change to your Deno Deploy URL when deploying
+
+    // DOM Elements
+    const chatBox = document.getElementById('chatBox');
+    const emptyState = document.getElementById('emptyState');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const statusDiv = document.getElementById('status');
+
+    // State
+    let isWaitingForResponse = false;
+    let chatHistory = [];
+
+    // Load chat history from localStorage
+    function loadChatHistory() {
+      const saved = localStorage.getItem('kageai_chat_history');
+      if (saved) {
+        try {
+          chatHistory = JSON.parse(saved);
+          
+          // Display saved messages
+          if (chatHistory.length > 0) {
+            emptyState.style.display = 'none';
+            chatHistory.forEach(msg => {
+              addMessageToUI(msg.content, msg.isUser, false);
+            });
+            showStatus(`Loaded ${chatHistory.length} messages from history`);
+          }
+        } catch (error) {
+          console.error('Error loading chat history:', error);
+          chatHistory = [];
+        }
+      }
+    }
+
+    // Save chat history to localStorage
+    function saveChatHistory() {
+      try {
+        localStorage.setItem('kageai_chat_history', JSON.stringify(chatHistory));
+      } catch (error) {
+        console.error('Error saving chat history:', error);
+        showStatus('Error saving chat history', true);
+      }
+    }
+
+    // Show status message
+    function showStatus(message, isError = false) {
+      statusDiv.textContent = message;
+      statusDiv.style.color = isError ? '#ff4444' : '#22d3ee';
+      statusDiv.classList.add('show');
+      setTimeout(() => {
+        statusDiv.classList.remove('show');
+      }, 3000);
+    }
+
+    // Clear chat history
+    function clearChat() {
+      if (confirm('Clear all chat history? This cannot be undone.')) {
+        chatHistory = [];
+        localStorage.removeItem('kageai_chat_history');
+        chatBox.innerHTML = '';
+        const emptyStateClone = document.getElementById('emptyState').cloneNode(true);
+        chatBox.appendChild(emptyStateClone);
+        emptyState.style.display = 'flex';
+        showStatus('Chat history cleared');
+      }
+    }
+
+    // Export chat history
+    function exportChat() {
+      if (chatHistory.length === 0) {
+        showStatus('No messages to export', true);
+        return;
+      }
+
+      const exportData = {
+        exported: new Date().toISOString(),
+        messageCount: chatHistory.length,
+        messages: chatHistory
+      };
+
+      const dataStr = JSON.stringify(exportData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `kageai-chat-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showStatus('Chat exported successfully');
+    }
+
+    // Add message to UI only
+    function addMessageToUI(content, isUser = false, animate = true) {
+      if (emptyState) {
+        emptyState.style.display = 'none';
+      }
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+      if (!animate) messageDiv.style.animation = 'none';
+      
+      // Format content with line breaks
+      const formattedContent = content.replace(/\n/g, '<br>');
+      
+      messageDiv.innerHTML = `
+        <div class="avatar ${isUser ? 'user-avatar' : 'ai-avatar'}">
+          ${isUser ? '👤' : '🤖'}
+        </div>
+        <div class="message-content">${formattedContent}</div>
+      `;
+      
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Add message and save to history
+    function addMessage(content, isUser = false) {
+      addMessageToUI(content, isUser, true);
+      
+      // Save to history
+      chatHistory.push({
+        content: content,
+        isUser: isUser,
+        timestamp: new Date().toISOString()
+      });
+      saveChatHistory();
+    }
+
+    // Show typing indicator
+    function showTyping() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message ai-message';
+      typingDiv.id = 'typing-indicator';
+      typingDiv.innerHTML = `
+        <div class="avatar ai-avatar">🤖</div>
+        <div class="message-content">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      `;
+      chatBox.appendChild(typingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Remove typing indicator
+    function hideTyping() {
+      const typing = document.getElementById('typing-indicator');
+      if (typing) typing.remove();
+    }
+
+    // Send message to API with context
+    async function sendMessage(message) {
+      if (!message.trim() || isWaitingForResponse) return;
+
+      // Add user message
+      addMessage(message, true);
+      messageInput.value = '';
+      
+      // Disable input while waiting
+      isWaitingForResponse = true;
+      sendButton.disabled = true;
+      messageInput.disabled = true;
+      
+      // Show typing indicator
+      showTyping();
+
+      try {
+        // Send recent context (last 10 messages) to maintain conversation flow
+        const recentHistory = chatHistory.slice(-10).map(msg => ({
+          role: msg.isUser ? 'user' : 'assistant',
+          content: msg.content
+        }));
+
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            message,
+            history: recentHistory
+          }),
         });
 
-        messageInput.focus();
+        const data = await response.json();
+        
+        // Remove typing indicator
+        hideTyping();
 
-        console.log('🚀 KageAI Frontend loaded with Sidebar and Wide View!');
-    </script>
+        if (data.success) {
+          addMessage(data.response, false);
+          
+          // Show metadata if available
+          if (data.metadata) {
+            console.log('📊 Response metadata:', data.metadata);
+          }
+        } else {
+          addMessage('❌ Sorry, something went wrong. Please try again.', false);
+          console.error('API Error:', data.error);
+          showStatus('Error: ' + data.error, true);
+        }
+      } catch (error) {
+        hideTyping();
+        addMessage('❌ Could not connect to server. Make sure the backend is running!', false);
+        console.error('Network Error:', error);
+        showStatus('Connection error - check if backend is running', true);
+      } finally {
+        // Re-enable input
+        isWaitingForResponse = false;
+        sendButton.disabled = false;
+        messageInput.disabled = false;
+        messageInput.focus();
+      }
+    }
+
+    // Send suggestion
+    function sendSuggestion(text) {
+      messageInput.value = text;
+      sendMessage(text);
+    }
+
+    // Event Listeners
+    sendButton.addEventListener('click', () => {
+      sendMessage(messageInput.value);
+    });
+
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(messageInput.value);
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+Shift+C to clear chat
+      if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        clearChat();
+      }
+      // Ctrl+Shift+E to export chat
+      if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+        e.preventDefault();
+        exportChat();
+      }
+    });
+
+    // Load chat history on page load
+    loadChatHistory();
+
+    // Focus input on load
+    messageInput.focus();
+
+    console.log('🚀 KageAI Frontend loaded!');
+    console.log('💡 Keyboard shortcuts:');
+    console.log('   Ctrl+Shift+C: Clear chat');
+    console.log('   Ctrl+Shift+E: Export chat');
+    console.log('   Enter: Send message');
+  </script>
 </body>
 </html>
