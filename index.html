@@ -169,6 +169,8 @@
       line-height: 1.6;
       word-wrap: break-word;
       overflow-x: auto; /* For code blocks */
+      /* Ensure list content doesn't break padding */
+      min-width: 0;
     }
 
     .user-message {
@@ -185,42 +187,52 @@
       border: 1px solid rgba(168, 85, 247, 0.2);
     }
     
-    /* Markdown rendering styles for AI messages */
+    /* --- ENHANCED MARKDOWN STYLES START --- */
     .ai-message .message-content p {
       margin-top: 0.5em;
       margin-bottom: 0.5em;
     }
-    
+
+    /* Block Code (Pre) Styling */
     .ai-message .message-content pre {
-      background: rgba(0,0,0,0.5);
+      **background: rgba(100, 100, 100, 0.1); /* Slightly lighter background */**
       border-radius: 6px;
-      padding: 10px;
+      **padding: 12px; /* Increased padding for better visibility */**
       overflow-x: auto;
       margin-top: 10px;
       margin-bottom: 10px;
+      **border-left: 3px solid #a855f7; /* Highlight border */**
     }
     
+    /* Inline Code and Pre-Code Styling */
     .ai-message .message-content code {
-      font-family: monospace;
+      font-family: 'Fira Code', 'Roboto Mono', monospace; /* Monospace font */
       font-size: 0.95em;
+      **background: rgba(168, 85, 247, 0.2); /* Subtle inline code background */**
+      **padding: 2px 4px;**
+      border-radius: 3px;
     }
     
     .ai-message .message-content pre code {
       display: block;
       padding: 0;
       color: #fff;
-      background: transparent;
-      white-space: pre;
+      background: transparent; /* Code block content is transparent */
+      white-space: pre-wrap; /* Allows long code lines to wrap */
+      **word-break: break-all; /* Ensures long strings break */**
     }
     
+    /* List Styling Fix for indentation */
     .ai-message .message-content ul, .ai-message .message-content ol {
-      margin: 10px 0 10px 20px;
-      padding: 0;
+      **margin: 10px 0; /* Vertical margin */**
+      **padding-left: 20px; /* Essential for bullet/number visibility */**
+      list-style-position: outside; /* Standard list behavior */
     }
     
     .ai-message .message-content li {
       margin-bottom: 5px;
     }
+    /* --- ENHANCED MARKDOWN STYLES END --- */
 
     .avatar {
       width: 36px;
