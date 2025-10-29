@@ -1,595 +1,1147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KageAI - Your AI Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <style>
-        /*
-         * CORE STYLES - Updated for Full-Screen Layout with Sidebar
-         */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            transition: color 0.3s, background-color 0.3s, border-color 0.3s;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KageAI - Productivity Assistant</title>
+  <style>
+    /* Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #000000;
-            color: #ffffff;
-            /* Full viewport height and width for the new layout */
-            min-height: 100vh;
-            display: flex;
-            padding: 0;
-            overflow: hidden; /* Manage overflow with specific elements */
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+      background: #0a0a0f;
+      color: #ffffff;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+    /* Main Layout */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: #171717;
+      border-right: 1px solid #2a2a2a;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
 
-        @keyframes typing {
-            0%, 60%, 100% { opacity: 0.3; }
-            30% { opacity: 1; }
-        }
+    .sidebar.collapsed {
+      transform: translateX(-260px);
+    }
 
-        /* --- Full Layout Structure --- */
-        .app-container {
-            display: flex;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            animation: fadeIn 1s ease-out;
-        }
+    .sidebar-header {
+      padding: 1rem;
+      border-bottom: 1px solid #2a2a2a;
+    }
 
-        /* --- Sidebar (New Element) --- */
-        .sidebar {
-            width: 250px; /* Standard sidebar width */
-            flex-shrink: 0;
-            background: #0f0f0f;
-            border-right: 1px solid #1f2937;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+    .new-chat-btn {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, #22d3ee, #3b82f6);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      transition: all 0.3s;
+    }
 
-        .sidebar-header {
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #1f2937;
-        }
-        
-        .sidebar-logo {
-            font-size: 1.5rem;
-            font-weight: 900;
-            letter-spacing: 0.05em;
-            background: linear-gradient(135deg, #22d3ee, #3b82f6, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    .new-chat-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34, 211, 238, 0.3);
+    }
 
-        .new-chat-btn {
-            width: 100%;
-            padding: 10px;
-            background: rgba(34, 211, 238, 0.1);
-            border: 1px solid rgba(34, 211, 238, 0.5);
-            color: #22d3ee;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.3s ease;
-        }
+    .chat-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
 
-        .new-chat-btn:hover {
-            background: rgba(34, 211, 238, 0.2);
-            border-color: #22d3ee;
-        }
+    .chat-item {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.25rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #a0a0a0;
+    }
 
-        .history-title {
-            color: #6b7280;
-            font-size: 0.8rem;
-            margin-top: 1rem;
-        }
+    .chat-item:hover {
+      background: #2a2a2a;
+      color: #fff;
+    }
 
-        .chat-history {
-            flex-grow: 1;
-            overflow-y: auto;
-            color: #9ca3af;
-        }
+    .chat-item.active {
+      background: #2a2a2a;
+      color: #22d3ee;
+    }
 
-        /* Simple placeholder history item style */
-        .history-item {
-            padding: 8px 0;
-            cursor: pointer;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .history-item:hover {
-            color: #ffffff;
-        }
+    .chat-item-title {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.9rem;
+    }
 
-        /* --- Main Chat Area --- */
-        .main-chat-area {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            padding-bottom: 20px; /* Space for the fixed input */
-            overflow-y: auto; /* Chat messages will scroll */
-        }
-        
-        /* Background Orb Effect (Repositioned for Main Area) */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.15;
-            z-index: 0;
-            transition: all 1s ease;
-            pointer-events: none;
-        }
+    .chat-item-delete {
+      opacity: 0;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: opacity 0.2s;
+      color: #ff4444;
+    }
 
-        .orb-cyan {
-            top: 5%;
-            left: 20%; /* Adjusted for sidebar */
-            width: 300px;
-            height: 300px;
-            background: #22d3ee;
-        }
+    .chat-item:hover .chat-item-delete {
+      opacity: 1;
+    }
 
-        .orb-purple {
-            bottom: 5%;
-            right: 5%;
-            width: 400px;
-            height: 400px;
-            background: #a855f7;
-        }
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid #2a2a2a;
+    }
 
-        /* --- Header (In main content area for context) --- */
-        .header {
-            text-align: center;
-            padding: 2rem 0;
-            position: sticky;
-            top: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 100;
-            border-bottom: 1px solid #1f2937;
-        }
+    .integrations-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(168, 85, 247, 0.1);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 8px;
+      color: #a855f7;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      transition: all 0.3s;
+    }
 
-        .logo-small {
-            font-size: 2rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #22d3ee, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.25rem;
-        }
+    .integrations-btn:hover {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: #a855f7;
+    }
 
-        .tagline {
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #0a0a0f;
+    }
 
-        /* --- Chat Box Content --- */
-        .chat-content-wrapper {
-            max-width: 900px; /* Wide screen, but chat messages centered */
-            width: 100%;
-            margin: 0 auto;
-            padding: 20px 20px 100px 20px; /* Padding bottom for fixed input area */
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            position: relative;
-            z-index: 5;
-        }
+    /* Top Bar */
+    .top-bar {
+      height: 60px;
+      background: #171717;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+    }
 
-        /* Remove old chat-box styling, as the wrapper now manages content */
-        .chat-content-wrapper.initial {
-            justify-content: center;
-            align-items: center;
-        }
+    .toggle-sidebar {
+      background: none;
+      border: none;
+      color: #a0a0a0;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
 
+    .toggle-sidebar:hover {
+      background: #2a2a2a;
+      color: #fff;
+    }
 
-        /* --- Messages --- */
-        .message {
-            display: flex;
-            gap: 12px;
-            animation: slideIn 0.3s ease;
-        }
+    .top-bar-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+    }
 
-        .message-content {
-            max-width: 800px; /* Give AI more room on wide screen */
-            padding: 14px 18px;
-            border-radius: 18px;
-            line-height: 1.6;
-            font-size: 1rem;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
+    .top-bar-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
 
-        .user-message {
-            flex-direction: row-reverse;
-            justify-content: flex-end; /* Align user message right */
-        }
+    .top-bar-btn {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      color: #a0a0a0;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
 
-        .user-message .message-content {
-            background: linear-gradient(135deg, #22d3ee, #3b82f6);
-            color: #000000;
-            font-weight: 500;
-            border-bottom-right-radius: 4px;
-        }
+    .top-bar-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
 
-        .ai-message .message-content {
-            background: rgba(168, 85, 247, 0.1);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            color: #ffffff;
-            border-bottom-left-radius: 4px;
-        }
-        
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
+    /* Chat Area */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .user-avatar { background: #ffffff; }
-        .ai-avatar { background: linear-gradient(135deg, #a855f7, #ec4899); }
+    .chat-area::-webkit-scrollbar {
+      width: 8px;
+    }
 
-        /* --- Markdown Styling --- */
-        .ai-message .message-content h1, .ai-message .message-content h2 {
-            margin-top: 1rem; margin-bottom: 0.5rem; color: #22d3ee; font-weight: 700;
-        }
-        .ai-message .message-content p { margin-bottom: 0.75rem; }
-        .ai-message .message-content ul, .ai-message .message-content ol {
-            padding-left: 20px; margin-bottom: 1rem;
-        }
-        .ai-message .message-content code {
-            background: rgba(168, 85, 247, 0.2); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 0.9em;
-        }
-        .ai-message .message-content pre {
-            background: #0f0f0f; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; border: 1px solid rgba(168, 85, 247, 0.2);
-        }
-        .ai-message .message-content pre code {
-            all: unset; white-space: pre; display: block; color: #e5e7eb;
-        }
-        .ai-message .message-content strong { color: #22d3ee; }
+    .chat-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
 
-        /* --- Loading animation --- */
-        #typing-indicator .message-content {
-            background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3);
-        }
-        .typing-indicator { display: flex; gap: 6px; padding: 4px 0; align-items: center; }
-        .typing-dot {
-            width: 10px; height: 10px; border-radius: 50%; background: #a855f7; animation: typing 1.4s infinite;
-        }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    .chat-area::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
 
-        /* --- Empty State --- */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-top: 50px; /* Push down slightly from header */
-            color: #6b7280;
-            text-align: center;
-            gap: 1.5rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+    /* Messages */
+    .message {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto 1.5rem auto;
+      display: flex;
+      gap: 1rem;
+      animation: messageSlide 0.3s ease;
+    }
 
-        /* --- Input Area (Fixed at bottom) --- */
-        .input-area-container {
-            position: fixed;
-            bottom: 0;
-            left: 250px; /* Offset by sidebar width */
-            right: 0;
-            padding: 20px 20px 30px 20px;
-            background: linear-gradient(to top, #000000, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
-            z-index: 200;
-        }
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-        .input-area {
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            gap: 12px;
-            background: rgba(17, 24, 39, 0.8);
-            border: 2px solid rgba(34, 211, 238, 0.2);
-            border-radius: 16px;
-            padding: 10px;
-            transition: border-color 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.2rem;
+    }
 
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none; /* Hide sidebar on small screens */
-            }
-            .input-area-container {
-                left: 0; /* Full width for input area */
-            }
-            .chat-content-wrapper {
-                 padding: 20px 10px 100px 10px;
-            }
-        }
-    </style>
+    .user-avatar {
+      background: linear-gradient(135deg, #22d3ee, #3b82f6);
+    }
+
+    .ai-avatar {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+    }
+
+    .message-content {
+      flex: 1;
+      line-height: 1.6;
+      color: #e0e0e0;
+    }
+
+    .message-content p {
+      margin-bottom: 1rem;
+    }
+
+    .message-content ul, .message-content ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .message-content code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    .user-message .message-content {
+      color: #fff;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 1rem 0;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #666;
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-8px); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      max-width: 900px;
+      width: 100%;
+      margin: auto;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .empty-logo {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .empty-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #22d3ee, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .empty-subtitle {
+      color: #a0a0a0;
+      margin-bottom: 2rem;
+    }
+
+    .suggestions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .suggestion-card {
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: left;
+    }
+
+    .suggestion-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: #22d3ee;
+      transform: translateY(-2px);
+    }
+
+    .suggestion-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .suggestion-title {
+      font-weight: 600;
+      color: #22d3ee;
+      margin-bottom: 0.25rem;
+    }
+
+    .suggestion-desc {
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    /* Input Area */
+    .input-container {
+      padding: 1.5rem;
+      background: #171717;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .input-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: #2a2a2a;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+
+    .input-area:focus-within {
+      border-color: #22d3ee;
+    }
+
+    #messageInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      resize: none;
+      max-height: 200px;
+      font-family: inherit;
+    }
+
+    #messageInput::placeholder {
+      color: #666;
+    }
+
+    #sendButton {
+      background: linear-gradient(135deg, #22d3ee, #3b82f6);
+      border: none;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      align-self: flex-end;
+    }
+
+    #sendButton:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34, 211, 238, 0.4);
+    }
+
+    #sendButton:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Integration Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #171717;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 1px solid #2a2a2a;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #a0a0a0;
+      cursor: pointer;
+      font-size: 1.5rem;
+      padding: 0.25rem;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    .integration-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .integration-item {
+      padding: 1.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.3s;
+    }
+
+    .integration-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .integration-icon {
+      font-size: 2rem;
+    }
+
+    .integration-info {
+      flex: 1;
+    }
+
+    .integration-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .integration-desc {
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    .integration-status {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .integration-status.connected {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .integration-status.disconnected {
+      background: rgba(168, 85, 247, 0.1);
+      color: #a855f7;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .integration-status:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        z-index: 100;
+        height: 100vh;
+      }
+
+      .suggestions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .top-bar-title {
+        display: none;
+      }
+    }
+
+    /* Scrollbar for modal */
+    .modal-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+  </style>
 </head>
 <body>
-    <div class="orb orb-cyan"></div>
-    <div class="orb orb-purple"></div>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <button class="new-chat-btn" onclick="createNewChat()">
+          <span>➕</span>
+          <span>New Chat</span>
+        </button>
+      </div>
 
-    <div class="app-container">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">🚀 KageAI</div>
+      <div class="chat-list" id="chatList">
+        <!-- Chat items will be added here -->
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="integrations-btn" onclick="openIntegrationsModal()">
+          <span>🔌</span>
+          <span>Integrations</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <button class="toggle-sidebar" onclick="toggleSidebar()">
+          ☰
+        </button>
+        <div class="top-bar-title" id="chatTitle">KageAI</div>
+        <div class="top-bar-actions">
+          <button class="top-bar-btn" onclick="exportCurrentChat()">💾 Export</button>
+          <button class="top-bar-btn" onclick="clearCurrentChat()">🗑️ Clear</button>
+        </div>
+      </div>
+
+      <!-- Chat Area -->
+      <div class="chat-area" id="chatArea">
+        <!-- Empty state -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-logo">🚀</div>
+          <h1 class="empty-title">Welcome to KageAI</h1>
+          <p class="empty-subtitle">Your AI-powered productivity assistant</p>
+          
+          <div class="suggestions-grid">
+            <div class="suggestion-card" onclick="sendSuggestion('What can you help me with?')">
+              <div class="suggestion-icon">✨</div>
+              <div class="suggestion-title">Getting Started</div>
+              <div class="suggestion-desc">Learn about my capabilities</div>
             </div>
+            <div class="suggestion-card" onclick="sendSuggestion('Read my unread emails and summarize them')">
+              <div class="suggestion-icon">📧</div>
+              <div class="suggestion-title">Email Summary</div>
+              <div class="suggestion-desc">Check your inbox</div>
+            </div>
+            <div class="suggestion-card" onclick="sendSuggestion('What\\'s on my calendar today?')">
+              <div class="suggestion-icon">📅</div>
+              <div class="suggestion-title">Today's Schedule</div>
+              <div class="suggestion-desc">View your calendar</div>
+            </div>
+            <div class="suggestion-card" onclick="sendSuggestion('Help me plan my day')">
+              <div class="suggestion-icon">🎯</div>
+              <div class="suggestion-title">Daily Planning</div>
+              <div class="suggestion-desc">Organize your tasks</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            <button class="new-chat-btn" onclick="location.reload()">+ New Chat</button>
+      <!-- Input Area -->
+      <div class="input-container">
+        <div class="input-wrapper">
+          <div class="input-area">
+            <textarea 
+              id="messageInput" 
+              placeholder="Message KageAI... (Press Enter to send, Shift+Enter for new line)"
+              rows="1"
+            ></textarea>
+            <button id="sendButton">
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 
-            <div class="history-title">RECENT CHATS</div>
-            <div class="chat-history">
-                <div class="history-item">How to use AI for market research</div>
-                <div class="history-item">Deno deployment fixes</div>
-                <div class="history-item">Best productivity tips for solo founders</div>
-                <div class="history-item">Drafting an email to investors</div>
-                </div>
+  <!-- Integrations Modal -->
+  <div class="modal" id="integrationsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Integrations</h2>
+        <button class="modal-close" onclick="closeIntegrationsModal()">×</button>
+      </div>
+
+      <div class="integration-list">
+        <div class="integration-item">
+          <div class="integration-icon">📧</div>
+          <div class="integration-info">
+            <div class="integration-name">Gmail</div>
+            <div class="integration-desc">Read, send, and manage emails</div>
+          </div>
+          <button class="integration-status disconnected" onclick="connectIntegration('gmail')">
+            Connect
+          </button>
         </div>
 
-        <div class="main-chat-area" id="mainChatArea">
-            
-            <div class="header">
-                <div class="logo-small">KageAI</div>
-                <div class="tagline">Your AI-Powered Productivity Assistant</div>
-            </div>
-
-            <div class="chat-content-wrapper initial" id="chatContentWrapper">
-                
-                <div class="empty-state" id="emptyState">
-                    <div class="empty-state-icon">💬</div>
-                    <div>
-                        <h2>Welcome to KageAI!</h2>
-                        <p>Ask me anything to get started</p>
-                    </div>
-                    
-                    <div class="suggestions" id="suggestions">
-                        <div class="suggestion-card" data-prompt="What can you help me with?">
-                            <div class="suggestion-title">✨ Getting Started</div>
-                            <div class="suggestion-desc">Learn what I can do</div>
-                        </div>
-                        <div class="suggestion-card" data-prompt="Help me prioritize my tasks for today">
-                            <div class="suggestion-title">📋 Task Help</div>
-                            <div class="suggestion-desc">Organize your work</div>
-                        </div>
-                        <div class="suggestion-card" data-prompt="Give me a productivity tip">
-                            <div class="suggestion-title">💡 Productivity</div>
-                            <div class="suggestion-desc">Boost your efficiency</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="input-area-container">
-                <div class="input-area">
-                    <input 
-                        type="text" 
-                        id="messageInput" 
-                        placeholder="Type your message..."
-                        autocomplete="off"
-                    >
-                    <button id="sendButton">Send</button>
-                </div>
-            </div>
-
+        <div class="integration-item">
+          <div class="integration-icon">📅</div>
+          <div class="integration-info">
+            <div class="integration-name">Google Calendar</div>
+            <div class="integration-desc">View and schedule events</div>
+          </div>
+          <button class="integration-status disconnected" onclick="connectIntegration('calendar')">
+            Connect
+          </button>
         </div>
+
+        <div class="integration-item">
+          <div class="integration-icon">✅</div>
+          <div class="integration-info">
+            <div class="integration-name">Todoist</div>
+            <div class="integration-desc">Create and manage tasks</div>
+          </div>
+          <button class="integration-status disconnected" onclick="connectIntegration('todoist')">
+            Connect
+          </button>
+        </div>
+
+        <div class="integration-item">
+          <div class="integration-icon">📝</div>
+          <div class="integration-info">
+            <div class="integration-name">Notion</div>
+            <div class="integration-desc">Access your workspace</div>
+          </div>
+          <button class="integration-status disconnected" onclick="connectIntegration('notion')">
+            Connect
+          </button>
+        </div>
+
+        <div class="integration-item">
+          <div class="integration-icon">💬</div>
+          <div class="integration-info">
+            <div class="integration-name">Slack</div>
+            <div class="integration-desc">Send messages and notifications</div>
+          </div>
+          <button class="integration-status disconnected" onclick="connectIntegration('slack')">
+            Connect
+          </button>
+        </div>
+
+        <div class="integration-item">
+          <div class="integration-icon">🔔</div>
+          <div class="integration-info">
+            <div class="integration-name">Nothing</div>
+            <div class="integration-desc">Smart notifications and reminders</div>
+          </div>
+          <button class="integration-status disconnected" onclick="connectIntegration('nothing')">
+            Connect
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // Configuration
-        const API_URL = 'https://kageai-backend.kagelabs.deno.net'; // IMPORTANT: Update this to your deployed backend URL
+  <script>
+    // Configuration
+    const API_URL = 'http://localhost:8000';
 
-        // DOM Elements
-        const chatContentWrapper = document.getElementById('chatContentWrapper');
-        const emptyState = document.getElementById('emptyState');
-        const suggestionsDiv = document.getElementById('suggestions');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const mainChatArea = document.getElementById('mainChatArea');
+    // State Management
+    let chats = [];
+    let currentChatId = null;
+    let isWaitingForResponse = false;
+    let integrations = {};
 
-        // State
-        let isWaitingForResponse = false;
+    // DOM Elements
+    const chatArea = document.getElementById('chatArea');
+    const emptyState = document.getElementById('emptyState');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatList = document.getElementById('chatList');
+    const chatTitle = document.getElementById('chatTitle');
+    const sidebar = document.getElementById('sidebar');
 
-        // --- MARKDOWN TO HTML RENDERER ---
-        function renderMarkdown(md) {
-            let html = md.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+    // Initialize
+    function init() {
+      loadChats();
+      loadIntegrations();
+      setupEventListeners();
+      
+      if (chats.length === 0) {
+        createNewChat();
+      } else {
+        switchToChat(chats[0].id);
+      }
+    }
 
-            html = html.replace(/```(.*?)?\n([\s\S]*?)\n```/g, function(match, lang, code) {
-                const cleanedCode = code.trim();
-                const escapedCode = cleanedCode.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                return `<pre><code>${escapedCode}</code></pre>`;
-            });
-
-            // Headers
-            html = html.replace(/^##\s*(.*)$/gm, '<h2>$1</h2>');
-            html = html.replace(/^#\s*(.*)$/gm, '<h1>$1</h1>');
-            
-            // Lists
-            html = html.replace(/^\s*[\-\*]\s*(.*)$/gm, '<li>$1</li>');
-            html = html.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
-            html = html.replace(/<\/ul>\s*<ul>/g, '');
-
-            // Paragraphs and line breaks
-            html = html.split('\n\n').map(p => {
-                if (p.trim().startsWith('<h') || p.trim().startsWith('<ul') || p.trim().startsWith('<pre')) {
-                    return p;
-                }
-                return `<p>${p.replace(/\n/g, '<br>')}</p>`;
-            }).join('');
-            
-            html = html.replace(/<p><\/p>/g, '');
-
-            return html;
+    // Setup Event Listeners
+    function setupEventListeners() {
+      sendButton.addEventListener('click', () => sendMessage());
+      
+      messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
         }
+      });
 
-        // Add message to chat
-        function addMessage(content, isUser = false) {
-            // Check if it's the first message
-            if (emptyState && emptyState.parentNode) {
-                // Hide empty state and remove initial styling
-                emptyState.style.display = 'none';
-                suggestionsDiv.style.display = 'none';
-                chatContentWrapper.classList.remove('initial');
-            }
+      messageInput.addEventListener('input', autoResizeTextarea);
+    }
 
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
-            
-            const formattedContent = isUser ? content : renderMarkdown(content);
-            
-            messageDiv.innerHTML = `
-                <div class="avatar ${isUser ? 'user-avatar' : 'ai-avatar'}">
-                    ${isUser ? '👤' : '🤖'}
-                </div>
-                <div class="message-content">${formattedContent}</div>
-            `;
-            
-            chatContentWrapper.appendChild(messageDiv);
-            
-            // Auto-scroll the main chat area
-            mainChatArea.scrollTop = mainChatArea.scrollHeight;
+    // Auto-resize textarea
+    function autoResizeTextarea() {
+      messageInput.style.height = 'auto';
+      messageInput.style.height = messageInput.scrollHeight + 'px';
+    }
+
+    // Chat Management
+    function loadChats() {
+      const saved = localStorage.getItem('kageai_chats');
+      if (saved) {
+        chats = JSON.parse(saved);
+        renderChatList();
+      }
+    }
+
+    function saveChats() {
+      localStorage.setItem('kageai_chats', JSON.stringify(chats));
+    }
+
+    function createNewChat() {
+      const newChat = {
+        id: Date.now().toString(),
+        title: 'New Chat',
+        messages: [],
+        createdAt: new Date().toISOString(),
+      };
+      
+      chats.unshift(newChat);
+      saveChats();
+      renderChatList();
+      switchToChat(newChat.id);
+    }
+
+    function switchToChat(chatId) {
+      currentChatId = chatId;
+      const chat = chats.find(c => c.id === chatId);
+      
+      if (!chat) return;
+      
+      // Update UI
+      chatTitle.textContent = chat.title;
+      renderMessages(chat.messages);
+      renderChatList();
+      messageInput.focus();
+    }
+
+    function deleteChat(chatId) {
+      if (!confirm('Delete this chat?')) return;
+      
+      chats = chats.filter(c => c.id !== chatId);
+      saveChats();
+      renderChatList();
+      
+      if (currentChatId === chatId) {
+        if (chats.length > 0) {
+          switchToChat(chats[0].id);
+        } else {
+          createNewChat();
         }
+      }
+    }
 
-        // Show typing indicator
-        function showTyping() {
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message ai-message';
-            typingDiv.id = 'typing-indicator';
-            typingDiv.innerHTML = `
-                <div class="avatar ai-avatar">🤖</div>
-                <div class="message-content">
-                    <div class="typing-indicator">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                </div>
-            `;
-            chatContentWrapper.appendChild(typingDiv);
-            mainChatArea.scrollTop = mainChatArea.scrollHeight;
-        }
+    function renderChatList() {
+      chatList.innerHTML = chats.map(chat => `
+        <div class="chat-item ${chat.id === currentChatId ? 'active' : ''}" 
+             onclick="switchToChat('${chat.id}')">
+          <span class="chat-item-title">${chat.title}</span>
+          <span class="chat-item-delete" onclick="event.stopPropagation(); deleteChat('${chat.id}')">
+            🗑️
+          </span>
+        </div>
+      `).join('');
+    }
 
-        // Remove typing indicator
-        function hideTyping() {
-            const typing = document.getElementById('typing-indicator');
-            if (typing) typing.remove();
-        }
+    // Message Management
+    function renderMessages(messages) {
+      chatArea.innerHTML = '';
+      
+      if (messages.length === 0) {
+        chatArea.appendChild(emptyState.cloneNode(true));
+        return;
+      }
+      
+      messages.forEach(msg => {
+        addMessageToUI(msg.content, msg.isUser, false);
+      });
+      
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
 
-        // Send message to API
-        async function sendMessage(message) {
-            if (!message.trim() || isWaitingForResponse) return;
+    function addMessageToUI(content, isUser, animate = true) {
+      if (emptyState.parentElement) {
+        emptyState.remove();
+      }
 
-            addMessage(message, true);
-            messageInput.value = '';
-            
-            isWaitingForResponse = true;
-            sendButton.disabled = true;
-            messageInput.disabled = true;
-            
-            showTyping();
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message' + (isUser ? ' user-message' : '');
+      if (!animate) messageDiv.style.animation = 'none';
+      
+      const formattedContent = formatMessage(content);
+      
+      messageDiv.innerHTML = `
+        <div class="message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}">
+          ${isUser ? '👤' : '🤖'}
+        </div>
+        <div class="message-content">${formattedContent}</div>
+      `;
+      
+      chatArea.appendChild(messageDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message }),
-                });
+    function formatMessage(content) {
+      // Basic markdown-like formatting
+      let formatted = content
+        .replace(/\n/g, '<br>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`(.*?)`/g, '<code>$1</code>');
+      
+      return formatted;
+    }
 
-                const data = await response.json();
-                
-                hideTyping();
+    function addMessage(content, isUser) {
+      const chat = chats.find(c => c.id === currentChatId);
+      if (!chat) return;
+      
+      const message = {
+        content,
+        isUser,
+        timestamp: new Date().toISOString(),
+      };
+      
+      chat.messages.push(message);
+      
+      // Update chat title if it's the first message
+      if (chat.messages.length === 2 && isUser) {
+        chat.title = content.substring(0, 30) + (content.length > 30 ? '...' : '');
+        renderChatList();
+      }
+      
+      saveChats();
+      addMessageToUI(content, isUser);
+    }
 
-                if (data.success) {
-                    addMessage(data.response, false);
-                } else {
-                    const errorMessage = `❌ Sorry, something went wrong.
-## Error Details
-* **Status:** ${response.status}
-* **Message:** ${data.error || 'The API returned a failure message.'}
-Please check the backend logs.`;
-                    addMessage(errorMessage, false);
-                    console.error('API Error:', data.error);
-                }
-            } catch (error) {
-                hideTyping();
-                const networkError = `❌ Could not connect to the KageAI server at **${API_URL}**.
-## Troubleshooting
-* **Check URL:** Ensure \`API_URL\` is correct.
-* **Server Status:** Make sure your Deno backend is running and deployed.
-* **CORS:** Verify your backend has CORS correctly configured.`;
-                addMessage(networkError, false);
-                console.error('Network Error:', error);
-            } finally {
-                isWaitingForResponse = false;
-                sendButton.disabled = false;
-                messageInput.disabled = false;
-                messageInput.focus();
-            }
-        }
+    function showTyping() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message';
+      typingDiv.id = 'typing-indicator';
+      typingDiv.innerHTML = `
+        <div class="message-avatar ai-avatar">🤖</div>
+        <div class="message-content">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      `;
+      chatArea.appendChild(typingDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
 
-        // Send suggestion (now uses the data-prompt attribute)
-        function sendSuggestion(e) {
-            const text = e.currentTarget.getAttribute('data-prompt');
-            messageInput.value = text;
-            sendMessage(text);
-        }
+    function hideTyping() {
+      const typing = document.getElementById('typing-indicator');
+      if (typing) typing.remove();
+    }
 
-        // Event Listeners
-        sendButton.addEventListener('click', () => {
-            sendMessage(messageInput.value);
+    // Send Message
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message || isWaitingForResponse) return;
+
+      addMessage(message, true);
+      messageInput.value = '';
+      messageInput.style.height = 'auto';
+      
+      isWaitingForResponse = true;
+      sendButton.disabled = true;
+      messageInput.disabled = true;
+      
+      showTyping();
+try {
+        const chat = chats.find(c => c.id === currentChatId);
+        const history = chat.messages.slice(-10).map(msg => ({
+          role: msg.isUser ? 'user' : 'assistant',
+          content: msg.content
+        }));
+
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message, history }),
         });
 
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage(messageInput.value);
-            }
-        });
-        
-        document.querySelectorAll('.suggestion-card').forEach(card => {
-            card.addEventListener('click', sendSuggestion);
-        });
+        const data = await response.json();
+        hideTyping();
 
+        if (data.success) {
+          addMessage(data.response, false);
+        } else {
+          addMessage('❌ Error: ' + data.error, false);
+        }
+      } catch (error) {
+        hideTyping();
+        addMessage('❌ Connection error. Make sure backend is running!', false);
+        console.error('Error:', error);
+      } finally {
+        isWaitingForResponse = false;
+        sendButton.disabled = false;
+        messageInput.disabled = false;
         messageInput.focus();
+      }
+    }
 
-        console.log('🚀 KageAI Frontend loaded with Sidebar and Wide View!');
-    </script>
+    function sendSuggestion(text) {
+      messageInput.value = text;
+      sendMessage();
+    }
+
+    // Sidebar Toggle
+    function toggleSidebar() {
+      sidebar.classList.toggle('collapsed');
+    }
+
+    // Export/Clear
+    function exportCurrentChat() {
+      const chat = chats.find(c => c.id === currentChatId);
+      if (!chat || chat.messages.length === 0) {
+        alert('No messages to export');
+        return;
+      }
+
+      const exportData = {
+        title: chat.title,
+        exported: new Date().toISOString(),
+        messages: chat.messages
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kageai-${chat.title.replace(/\s+/g, '-')}-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearCurrentChat() {
+      if (!confirm('Clear all messages in this chat?')) return;
+      
+      const chat = chats.find(c => c.id === currentChatId);
+      if (chat) {
+        chat.messages = [];
+        chat.title = 'New Chat';
+        saveChats();
+        renderMessages([]);
+        renderChatList();
+      }
+    }
+
+    // Integrations
+    function loadIntegrations() {
+      const saved = localStorage.getItem('kageai_integrations');
+      if (saved) {
+        integrations = JSON.parse(saved);
+        updateIntegrationUI();
+      }
+    }
+
+    function saveIntegrations() {
+      localStorage.setItem('kageai_integrations', JSON.stringify(integrations));
+    }
+
+    function openIntegrationsModal() {
+      document.getElementById('integrationsModal').classList.add('show');
+    }
+
+    function closeIntegrationsModal() {
+      document.getElementById('integrationsModal').classList.remove('show');
+    }
+
+    function connectIntegration(service) {
+      // For now, just toggle the connection status
+      // In production, this would handle OAuth flow
+      
+      if (integrations[service]) {
+        // Disconnect
+        delete integrations[service];
+        alert(`Disconnected from ${service}`);
+      } else {
+        // Connect (simulated)
+        alert(`To connect ${service}, you'll need to:\n\n1. Enable the ${service} API\n2. Get OAuth credentials\n3. Authorize KageAI\n\nThis feature is coming soon!`);
+        
+        // Simulate connection
+        integrations[service] = {
+          connected: true,
+          connectedAt: new Date().toISOString(),
+        };
+      }
+      
+      saveIntegrations();
+      updateIntegrationUI();
+    }
+
+    function updateIntegrationUI() {
+      const buttons = document.querySelectorAll('.integration-status');
+      buttons.forEach(btn => {
+        const service = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+        if (integrations[service]) {
+          btn.className = 'integration-status connected';
+          btn.textContent = 'Connected ✓';
+        } else {
+          btn.className = 'integration-status disconnected';
+          btn.textContent = 'Connect';
+        }
+      });
+    }
+
+    // Close modal on outside click
+    document.getElementById('integrationsModal').addEventListener('click', (e) => {
+      if (e.target.id === 'integrationsModal') {
+        closeIntegrationsModal();
+      }
+    });
+
+    // Initialize app
+    init();
+
+    console.log('🚀 KageAI loaded!');
+    console.log('💡 Keyboard shortcuts:');
+    console.log('   Enter: Send message');
+    console.log('   Shift+Enter: New line');
+  </script>
 </body>
 </html>
