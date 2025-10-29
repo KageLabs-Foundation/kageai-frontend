@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
   <title>KageAI - Productivity Assistant</title>
   <style>
     /* Reset & Base */
@@ -270,22 +271,44 @@
       color: #e0e0e0;
     }
 
+    
+
     .message-content p {
       margin-bottom: 1rem;
     }
 
-    .message-content ul, .message-content ol {
-      margin-left: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .message-content code {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.9em;
-    }
+/* Markdown Code Block Styling */
+.message-content pre {
+  background: #000; /* Dark background for code */
+  border: 1px solid #2a2a2a; /* Subtle border */
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto; /* Allow horizontal scroll for long lines */
+  margin: 1rem 0; /* Space around code block */
+}
+.message-content pre code {
+  background: transparent; /* Code inside pre has no extra background */
+  padding: 0;
+  font-size: 0.9em;
+  white-space: pre-wrap; /* Wrap long lines */
+  word-break: break-all; /* Break very long words/strings */
+}
+/* Inline code styling */
+.message-content code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+/* Fix list indentation */
+ .message-content ul, .message-content ol {
+   margin: 1rem 0 1rem 1.5rem; /* Ensure left margin for bullets */
+   padding-left: 1rem; /* Add padding for nested lists */
+ }
+ .message-content li {
+   margin-bottom: 0.25rem;
+ }
 
     .user-message .message-content {
       color: #fff;
@@ -764,9 +787,22 @@
   </div>
 
   <script>
+
     // Configuration
     const API_URL = 'https://kageai-backend.kagelabs.deno.net';
 
+    // Make functions globally accessible for onclick attributes
+window.createNewChat = createNewChat;
+window.switchToChat = switchToChat;
+window.deleteChat = deleteChat;
+window.openIntegrationsModal = openIntegrationsModal;
+window.closeIntegrationsModal = closeIntegrationsModal;
+window.connectIntegration = connectIntegration;
+window.toggleSidebar = toggleSidebar;
+window.exportCurrentChat = exportCurrentChat;
+window.clearCurrentChat = clearCurrentChat;
+window.sendSuggestion = sendSuggestion; // Add this if missing
+    
     // State Management
     let chats = [];
     let currentChatId = null;
@@ -794,6 +830,15 @@
         switchToChat(chats[0].id);
       }
     }
+
+    // Initialize Showdown converter
+const markdownConverter = new showdown.Converter({
+  tables: true,
+  strikethrough: true,
+  tasklists: true,
+  simplifiedAutoLink: true,
+  openLinksInNewWindow: true // Good practice for links in chat
+});
 
     // Setup Event Listeners
     function setupEventListeners() {
@@ -908,7 +953,9 @@
       messageDiv.className = 'message' + (isUser ? ' user-message' : '');
       if (!animate) messageDiv.style.animation = 'none';
       
-      const formattedContent = formatMessage(content);
+const formattedContent = isUser ?
+    content.replace(/\n/g, '<br>') : // Keep user simple
+    markdownConverter.makeHtml(content); // Use showdown for AI
       
       messageDiv.innerHTML = `
         <div class="message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}">
@@ -919,17 +966,6 @@
       
       chatArea.appendChild(messageDiv);
       chatArea.scrollTop = chatArea.scrollHeight;
-    }
-
-    function formatMessage(content) {
-      // Basic markdown-like formatting
-      let formatted = content
-        .replace(/\n/g, '<br>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/`(.*?)`/g, '<code>$1</code>');
-      
-      return formatted;
     }
 
     function addMessage(content, isUser) {
