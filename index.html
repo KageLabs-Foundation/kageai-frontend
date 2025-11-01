@@ -1127,28 +1127,71 @@ try {
       document.getElementById('integrationsModal').classList.remove('show');
     }
 
-    function connectIntegration(service) {
-      // For now, just toggle the connection status
-      // In production, this would handle OAuth flow
+async function connectIntegration(service) {
+  if (service === 'gmail') {
+    try {
+      // Get auth URL from YOUR production backend
+      const response = await fetch(`${API_URL}/oauth/gmail/start?userId=default_user`);
+      const data = await response.json();
       
-      if (integrations[service]) {
-        // Disconnect
-        delete integrations[service];
-        alert(`Disconnected from ${service}`);
-      } else {
-        // Connect (simulated)
-        alert(`To connect ${service}, you'll need to:\n\n1. Enable the ${service} API\n2. Get OAuth credentials\n3. Authorize KageAI\n\nThis feature is coming soon!`);
+      if (data.success && data.authUrl) {
+        // Open Google OAuth in popup
+        const width = 600;
+        const height = 700;
+        const left = (window.innerWidth - width) / 2;
+        const top = (window.innerHeight - height) / 2;
         
-        // Simulate connection
-        integrations[service] = {
-          connected: true,
-          connectedAt: new Date().toISOString(),
-        };
+        window.open(
+          data.authUrl,
+          'Gmail Authorization',
+          `width=${width},height=${height},left=${left},top=${top}`
+        );
+
+        // Show connecting message
+        alert('Opening Google authorization...\n\nAfter authorizing, come back here!');
+        
+        // Wait for connection and verify
+        setTimeout(async () => {
+          await checkGmailConnection();
+        }, 5000); // Check after 5 seconds
+      } else {
+        alert('Failed to start Gmail connection');
       }
-      
+    } catch (error) {
+      alert('Error: ' + error.message);
+      console.error(error);
+    }
+  } else {
+    // Other integrations
+    alert(`${service} integration coming soon!\n\nCurrently only Gmail is available.`);
+  }
+}
+
+async function checkGmailConnection() {
+  try {
+    const response = await fetch(`${API_URL}/api/gmail/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: 'default_user' }),
+    });
+    
+    const data = await response.json();
+    
+    if (data.success && data.connected) {
+      integrations['gmail'] = {
+        connected: true,
+        connectedAt: new Date().toISOString(),
+      };
       saveIntegrations();
       updateIntegrationUI();
+      alert('✅ Gmail connected successfully!\n\nTry asking: "Read my unread emails"');
+    } else {
+      alert('⏳ Gmail not connected yet.\n\nMake sure you completed the authorization.');
     }
+  } catch (error) {
+    console.error('Failed to check Gmail connection:', error);
+  }
+}
 
     function updateIntegrationUI() {
       const buttons = document.querySelectorAll('.integration-status');
