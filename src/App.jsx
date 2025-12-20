@@ -12,14 +12,14 @@ const projects = [
     title: "KageAI",
     category: "Assistant",
     desc: "Studio-grade AI copilot that handles chat, email, calendar, and ops without busywork.",
-    link: "https://kage.wulabs.org",
+    link: "#",
     tone: "cyan",
   },
   {
     title: "KageSystem",
     category: "Platform",
     desc: "Adaptive execution layer for teams that want faster delivery loops and reliable outcomes.",
-    link: "https://system.kage.wulabs.org",
+    link: "#",
     tone: "cyan",
   },
   {
