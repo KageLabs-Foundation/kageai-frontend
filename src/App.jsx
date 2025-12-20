@@ -164,22 +164,24 @@ function App() {
           <section id="about" className="section about-area cursor-target">
             <AnimatedContent>
               <div className="section-head cursor-target">
-                <p className="eyebrow">Why KageLabs</p>
-                <h2 className="cursor-target">Every surface here is tuned for launch speed - no bespoke animation detours required.</h2>
+                <p className="eyebrow">About KageLabs</p>
+                <h2 className="cursor-target">
+                  Innovation-first AI studio shaping human-centric, future-ready systems.
+                </h2>
               </div>
               <div className="pillars">
                 {[
                   {
-                    title: "Production polish",
-                    body: "Polished defaults paired with motion cues to build a memorable first touch.",
+                    title: "1. Innovation First",
+                    body: "Pushing boundaries with cutting-edge AI research and breakthrough solutions that reshape industries.",
                   },
                   {
-                    title: "Speed to ship",
-                    body: "Drop-in modules with sane props so we can focus on your story, not animation plumbing.",
+                    title: "2. Human-Centric",
+                    body: "Creating technology that bridges the gap between human creativity and machine intelligence.",
                   },
                   {
-                    title: "Future ready",
-                    body: "Need 3D, physics, or cursor magic? We can scale this layout instantly.",
+                    title: "3. Future-Ready",
+                    body: "Building platforms and tools that empower the next generation of creators and innovators.",
                   },
                 ].map((item) => (
                   <div key={item.title} className="panel">
@@ -193,29 +195,27 @@ function App() {
 
           <section id="projects" className="section">
             <AnimatedContent>
-              <SpotlightCard spotlightColor="rgba(20, 228, 255, 0.25)" className="bg-transparent border border-white/10">
-                <div className="section-head">
-                  <p className="eyebrow">Products</p>
-                  <h2>Live launches powered by our stack.</h2>
-                </div>
-                <div className="projects mt-6">
-                  {projects.map((project) => (
-                    <SpotlightCard key={project.title} className={`project project-flat ${project.tone}`}>
-                      <div className="badge">{project.category}</div>
-                      <h3>{project.title}</h3>
-                      <p>{project.desc}</p>
-                      <a
-                        className="link"
-                        href={project.link}
-                        target={project.link.startsWith("http") ? "_blank" : "_self"}
-                        rel="noreferrer"
-                      >
-                        Learn more
-                      </a>
-                    </SpotlightCard>
-                  ))}
-                </div>
-              </SpotlightCard>
+              <div className="section-head">
+                <p className="eyebrow">Products</p>
+                <h2>Live launches powered by our stack.</h2>
+              </div>
+              <div className="projects mt-6">
+                {projects.map((project) => (
+                  <SpotlightCard key={project.title} className={`project project-flat ${project.tone}`}>
+                    <div className="badge">{project.category}</div>
+                    <h3>{project.title}</h3>
+                    <p>{project.desc}</p>
+                    <a
+                      className="link"
+                      href={project.link}
+                      target={project.link.startsWith("http") ? "_blank" : "_self"}
+                      rel="noreferrer"
+                    >
+                      Learn more
+                    </a>
+                  </SpotlightCard>
+                ))}
+              </div>
             </AnimatedContent>
           </section>
 
