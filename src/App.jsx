@@ -245,8 +245,8 @@ function App() {
                 </button>
               </form>
                 <div className="actions">
-                  <a className="secondary" href="mailto:contact@kagelabs.com">
-                    Or email contact@kagelabs.com
+                  <a className="secondary" href="mailto:contact@kagelabs.helioho.st">
+                    Or email contact@kagelabs.helioho.st
                   </a>
                 </div>
               </div>
